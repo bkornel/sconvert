@@ -1,0 +1,18 @@
++AMGD  -*-text-*-
+$Id: ChangeLog 6 2012-08-24 02:46:15Z mike $
+
+1.  23 Aug 2012, MJ Pfauth
+version:  2.0
+Bugs
+- Corrected equations in App A, euler.pdf.  Fixed some bugs in
+  euler.hpp; matched code to equations in euler.pdf.
+Features
+- Converted to automake/autoconf.
+Testing
+- Test driver output correct.
+Notes
+- Test drivers not ready for release.
+SVN
+- rev 4, 5, 6
+Release
+- 23 Aug 2012

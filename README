@@ -1,0 +1,109 @@
++AMGD  -*-Text-*-
+$Id: README 4 2012-08-24 02:28:17Z mike $
+
+Copyright 2012 Michael J. Pfauth, mpfauth@hiwaay.net.  Distributed
+under the Boost Software License, Version 1.0. (See accompanying file
+LICENSE_1_0.txt or copy at http:www.boost.org/LICENSE_1_0.txt)
+
+SConvert is set of functions for coordinate transformation and Euler
+angle manipulation.  My goal was to implement a useful, simple, easy
+to use and reasonably efficient set of conversions for commonly used
+cartesian, geodetic and topocentric coordinate systems.  I use
+SConvert in my own work and have found it to be useful both by itself
+and as part of a larger, more comprehensive set of conversion
+functions.
+
+I have used SConvert with both Linux/gcc and Windows/Visual C++.
+Since SConvert is written in plain vanilla C++ there should be no
+problems on other platforms, assuming a reasonably standards-compliant
+C++ compiler.
+
+SConvert consists of 3 parts, each in its own namespace: SCoord,
+SEuler and SMatrix.  With the exception of the HeightDatumToGeoid and
+HeightGeoidToDatum functions (see below), everything is written as C++
+templates.
+
+SCoord contains the primary coordinate conversion functions.  It
+handles conversions among these coordinate systems:
+- ECI (Earth-Centered Intertial)
+- Geodetic, ie latitude, longitude and altitude (WGS-84 only).  There
+are also 2 functions to convert between datum and geoid (mean sea
+level) altitudes.
+- ECR/ECEF (Earth-Centered Rotating aka Earth-Centered, Earth-Fixed)
+- ENU/LLE (East-North-Up aka Local Level East)
+- REA range-elevation-azimuth, a spherical coordinate system whose
+origin is a ENU/LLE coordinate system.
+
+Coordinate transformations are organized as pairs: ECI <--> ECR, ECR
+<--> Geodetic, ECR <--> ENU and ENU <--> REA.  The two-way arrow <-->
+means that there are both forward and reverse transformations.
+Position and velocity are transformed for all pairs.  ECI <--> ECR and
+ECR <--> ENU also have acceleration transformations.  Each pair also
+has functions for computing the transformation matrix, a required
+argument for all transformation functions.
+
+For geodetic coordinates there is an additonal pair of functions,
+HeightDatumToGeoid and HeightGeoidToDatum found in height_convert.h,
+to convert between datum/ellipsoid height and geoid/mean sea level
+(MSL) altitudes.  Use of these functions requires linking with
+libheight_sconvert*.  If you are not using these two functions then
+you need not link with this library.  Use of these two functions also
+requires that the datum-ellipsoid height file egm96.grd be in a
+location specified by the environment variable GEOID_DATA.  Also, the
+altitude parameters of the ECR <--> Geodetic conversions are assumed
+to be datum; ie wrt the WGS-84 ellipsoid.  Mean sea level (MSL)
+altitude is more correctly known as geoid altitude, so don't confuse
+datum with geoid.
+
+The height conversion functions and egm96.grd were taken from the
+GeoTrans coordinate transformation distribution.  GeoTrans was written
+for the US government and is freely distributed.  It contains
+conversion functions for a welter of coordinate systems and map
+projections.  Highly recommended; can be found at
+http://earth-info.nga.mil/GandG/geotrans.
+
+Test drivers are not yet available for distribution.
+
+SCoord depends on SMatrix and SEuler.
+
+Seuler is a set of Euler angle functions which handle all 12 unique
+Euler angle sequences.  It contains functions to compute the direction
+cosine matrix for a given set of Euler angles and also to retrieve any
+of the 12 Euler sequences from a direction cosine matrix.  SEuler
+correctly handles cases of gimbal lock.  Read the included Euler angle
+tutorial in file doc/euler.pdf for more detailed explanation of what
+Euler angles are and how to manipulate them.  The SEuler functions are
+more or less direct implementations of the equations in euler.pdf.
+SEuler depends on SMatrix, except for the DegToRad and RadToDeg
+functions.  Since all functions in SEuler are templates, if you only
+need these two, then you need not include SMatrix.
+
+SMatrix is a minimal set of matrix functions specifically designed for
+SConvert.  There are several very fine industrial-strength matix and
+linear algebra packages available but since I do not have an
+industrial-strength problem and to accomplish my design goal of
+simplicity, I wrote my own stuff.
+
+This is not the place for a lesson on coordinate systems.  Effective
+use of SConvert requires some knowledge of and experience with
+coordinate systems, though not very much.  A little searching on the
+web will discover much useful information.
+
+Building
+
+SConvert is now distributed as an automake package.  Upack it in the
+usual way: gunzip -c sconvert-<version>.tgz | tar xvf -.  I recommend
+that you make a release directory, mkdir release.  Then change to that
+directory and do the build from there: cd release; ../configure
+CXXFLAGS='-O2'; make; sudo make install.  But you are free to do as
+you wish.
+
+Installation
+
+See INSTALL for general information on installing automke-configured
+software.
+
+The file egm96.grd is installed to the data directory, by default
+/usr/local/share/sconvert.  This location must be the value of the
+environment variable GEOID_DATA and must be defined if you will
+linking to the sconvert libraries.
